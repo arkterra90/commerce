@@ -1,0 +1,114 @@
+<!--list_view page includes the following functionality. Ability to make bids, leave comments, 
+listing creator can end the auction, users can add the item to their watche list, and when the 
+auction is ended users can view who won the item and the winning bid. If and Else template arguments are used to determine if an auction is open or closed and appropriate input fields are disabled if auction is closed.-->
+
+{% extends "auctions/layout.html" %} 
+
+{% block body %} 
+
+    <!--Messages to notify user of events for bids and watch list.-->
+    {% if bid_message %} 
+
+    <h5>{{ bid_message }}</h5>
+     
+    {% endif %}
+
+    {% if watch_message %} 
+
+    <h5>{{ watch_message }}</h5>
+
+    {% endif %}
+
+    <!-- Displays to user information about listing all list items
+    pertaining to this page are passed through the list_item queryset.-->
+    <div class="container border border-dark p-4 mb-4">
+        <div class="row">
+        <div class="col-md-6">
+            <h3 class="mb-3">{{ list_item.title }}</h3>
+            {% if list_item.list_active == True %}
+                <p class="mb-3">{{ list_item.discription }}</p>
+                <p class="mb-3">Current Bid: ${{ high_bid }}</p>
+                <p class="mb-3">Posted by: {{ list_item.list_user }}</p>
+                <p class="mb-3">Listed on: {{ list_item.list_time }}</p>
+                <p class="mb-3">List is active: {{list_item.list_active }}</p>
+                <form action="{% url "watch_list" list_id=list_item.id %}" method="post" class="mb-3">
+                    {% csrf_token %} 
+                    {{ WatchForm }}
+                    <input type="hidden" name="user" value="{{ user.username }}">
+                    <button type="submit" name="watch">Save or Remove From Watch List</button>
+                </form>
+                {% if user.username == list_item.list_user %} 
+                <form action="{% url 'bid_close' list_id=list_item.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_bid_close" value="False">
+                    <button type="submit" name="bid_close_save">Close Action</button>
+                </form>
+
+                {% endif %}
+            {% else %} 
+                <p class="mb-3">Auction Closed</p>
+                <p class="mb-3">Winner: {{ high_bidder }}</p>
+                <p class="mb-3">Winning Bid: ${{ high_bid }}</p>
+            {% endif %} 
+        </div>
+        <div class="col-md-6">
+            <img src="{{ list_item.image_url }}" alt="Listing Image" class="img-fluid">
+        </div>
+        </div>
+    </div>
+
+    <!-- Allows user to place a bid. Form sends back hidden inputs to 
+    allow for management of fields not shown.-->
+    <div class="container border border-dark p-4 mb-4">
+        <div class="row">
+        <div class="col-md-6">
+            <h3 class="mb-3">Place Bid:</h3>
+            {% if list_item.list_active == True %} 
+            <form action="{% url 'bid_place' list_id=list_item.id %}" method="post">
+                {% csrf_token %}
+                {{ BidForm }}
+                <input type="hidden" name="bid_user" value="{{ user.username }}">
+                <button type="submit" name="make_bid">Place Bid</button>
+            </form>
+            {% else %} 
+            <p class="mb-3">Bidding Closed</p>
+            {% endif %} 
+        </div>
+        <div class="col-md-6"> 
+            <h2 class="mb-3">{{ list_item.title }} Bids:</h2>
+                  {% for bid in list_bid %} 
+                  <p>{{ bid.bid_user }}: ${{ bid.bid }} </p>
+                  {% endfor %}           
+        </div>
+        </div>
+    </div>
+
+    <!-- Allows user to make comments on a listing. Also displays comments made 
+    on a listing. -->
+    <div class="container border border-dark p-4 mb-4">
+        <div class="row">
+        <div class="col-md-6">
+            <h3 class="mb-3">Comments:</h3>
+            {% if list_item.list_active == True %} 
+            <form action="{% url 'item_comments' list_id=list_item.id %}" method="post">
+                {% csrf_token %}
+                {{ CommentsForm }}
+                <input type="hidden" name="bid_user" value="{{ user.username }}">
+                <input type="hidden" name="list_item" value="{{ list_item.title }}">
+                <button type="submit" name="comment">Save Comment</button>
+            </form>
+            {% else %} 
+            <p class="mb-3">Comments Closed</p>
+            {% endif %}
+            
+        </div>
+        <div class="col-md-6">
+            <h2 class="mb-3">{{ list_item.title }} Comments:</h2>
+                  {% for comment in list_comment %} 
+                  <p>{{ comment.user_comment }}: {{ comment.item_comment }} </p>
+                  {% endfor %}
+        </div>
+        </div>
+    </div>
+
+{% endblock %} 

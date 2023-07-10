@@ -1,0 +1,55 @@
+<!--Categories.html renders listing to user based on their desired search category.
+Once user inputs a category to view the template returns cat_view and populates
+all of the listings in that category.-->
+
+{% extends 'auctions/layout.html' %} 
+
+{% block body %} 
+
+    <div class="container border border-dark p-4 mb-4">
+        <div class="row">
+        <div>
+            <h3 class="mb-3">Choose A Category To View:</h3>
+            <form action="{% url 'category_view' %}" method="post">
+                {% csrf_token %}
+                <select id="category" name="category">
+                    {% for cat in categories %} 
+                    <option value="{{ cat.1 }}" name="cat_name">{{ cat.0 }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" name="cat_submit">Submit</button>
+            </form>
+        </div>
+        </div>
+    </div>
+
+    {% if cat_view %} 
+
+        {% for list in cat_view %} 
+
+            <div class="container border border-dark p-4 mb-4">
+                <div class="row">
+                <div class="col-md-6">
+                    <h3 class="mb-3"><a href="{% url 'list_view' list.id %}">{{ list.title }}</a></h3>
+                    <p class="mb-3">{{ list.discription }}</p>
+                    <p class="mb-3">Current Bid: ${{ list.bid_current }}</p>
+                    <p class="mb-3">Posted by: {{ list.list_user }}</p>
+                    <p class="mb-3">Listed on: {{ list.list_time }}</p>
+                    {% if list.list_active == True %} 
+                        <p class="mb-3">Active Listing</p>
+                    {% else %}
+                        <p class="mb-3">Listing Closed</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <img src="{{ list.image_url }}" alt="Listing Image" class="img-fluid">
+                </div>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+  
+  {% endblock %}

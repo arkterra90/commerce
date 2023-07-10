@@ -1,0 +1,28 @@
+{% extends "auctions/layout.html" %} 
+
+{% block body %} 
+
+{% for list in watch_list %} 
+
+    <div class="container border border-dark p-4 mb-4">
+        <div class="row">
+          <div class="col-md-6">
+            <h3 class="mb-3"><a href="{% url 'list_view' list.item.id %}">{{ list.item.title }}</a></h3>
+            <p class="mb-3">{{ list.discription }}</p>
+            <p class="mb-3">Current Bid: ${{ list.item.bid_current }}</p>
+            <p class="mb-3">Posted by: {{ list.item.list_user }}</p>
+            <p class="mb-3">Listed on: {{ list.item.list_time }}</p>
+            {% if list.item.list_active == True %} 
+                <p class="mb-3">Active Listing</p>
+            {% else %}
+                <p class="mb-3">Listing Closed</p>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <img src="{{ list.item.image_url }}" alt="Listing Image" class="img-fluid">
+          </div>
+        </div>
+      </div>
+
+    {% endfor %}
+{% endblock %} 

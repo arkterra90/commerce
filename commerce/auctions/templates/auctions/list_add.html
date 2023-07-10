@@ -1,0 +1,18 @@
+{% extends "auctions/layout.html" %} 
+
+{% block body %} 
+
+{% if message %} 
+{{ message }}
+{% endif %} 
+<form action="{% url 'list_add' %}" method="post">
+    {% csrf_token %} 
+    {{ ListingForm.as_p }}
+
+    <input type="hidden" name="list_user" value="{{ user.username }}">
+    <button type="submit" name="save">Save New Listing</button>
+    <button type="submit" name="add">Save and Add Another</button>
+</form>
+
+
+{% endblock %} 
